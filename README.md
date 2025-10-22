@@ -221,10 +221,6 @@ asteroids/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 🙏 Acknowledgments
 
 - Built with [Raylib](https://www.raylib.com/) - A simple and easy-to-use library to enjoy videogames programming
@@ -236,4 +232,3 @@ This project is open source and available under the [MIT License](LICENSE).
 **Enjoy the complete Asteroids experience!** 🎮🚀
 
 _This game includes a full menu system, persistent leaderboards, and professional polish - everything you'd expect from a commercial game release._
-
