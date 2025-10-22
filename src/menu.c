@@ -33,6 +33,7 @@ void InitMenu(MenuData *menu) {
     menu->difficulty = DIFFICULTY_NORMAL;
     strcpy(menu->playerName, "PLAYER");
     menu->nameCharIndex = 0;
+    menu->settingsFromPause = false;
 }
 
 void UpdateMenu(MenuData *menu) {
@@ -52,6 +53,7 @@ void UpdateMenu(MenuData *menu) {
                 menu->currentState = GAME_LEADERBOARD;
                 break;
             case MENU_ITEM_SETTINGS:
+                menu->settingsFromPause = false;
                 menu->currentState = GAME_SETTINGS;
                 break;
             case MENU_ITEM_EXIT:
@@ -137,6 +139,7 @@ void UpdatePauseMenu(MenuData *menu) {
                 menu->currentState = GAME_MENU;
                 break;
             case PAUSE_ITEM_SETTINGS:
+                menu->settingsFromPause = true;
                 menu->currentState = GAME_SETTINGS;
                 break;
             default:

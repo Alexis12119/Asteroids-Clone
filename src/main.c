@@ -107,6 +107,7 @@ int main(void) {
      }
 
     // Update based on current state
+    static GameState prevState = GAME_MENU;
     switch (menu.currentState) {
     case GAME_MENU:
        UpdateMenu(&menu);
@@ -304,23 +305,24 @@ int main(void) {
        }
        break;
 
-     case GAME_SETTINGS:
-       UpdateSettings(&settings);
-       UpdateAsteroids(asteroids);
-       // Handle back button click
-       if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-         Vector2 mousePos = GetMousePosition();
-         // Convert to virtual coordinates for scaled UI
-         float zoom = fminf((float)GetScreenWidth() / SCREEN_WIDTH, (float)GetScreenHeight() / SCREEN_HEIGHT);
-         Vector2 offset = {(GetScreenWidth() - SCREEN_WIDTH * zoom) / 2.0f, (GetScreenHeight() - SCREEN_HEIGHT * zoom) / 2.0f};
-         Vector2 virtualMouse = {(mousePos.x - offset.x) / zoom, (mousePos.y - offset.y) / zoom};
-         Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
-                                 30};
-         if (CheckCollisionPointRec(virtualMouse, backButton)) {
-           menu.currentState = GAME_MENU;
-         }
-       }
-       break;
+      case GAME_SETTINGS:
+        UpdateSettings(&settings);
+        menu.difficulty = settings.difficulty;
+        UpdateAsteroids(asteroids);
+        // Handle back button click
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+          Vector2 mousePos = GetMousePosition();
+          // Convert to virtual coordinates for scaled UI
+          float zoom = fminf((float)GetScreenWidth() / SCREEN_WIDTH, (float)GetScreenHeight() / SCREEN_HEIGHT);
+          Vector2 offset = {(GetScreenWidth() - SCREEN_WIDTH * zoom) / 2.0f, (GetScreenHeight() - SCREEN_HEIGHT * zoom) / 2.0f};
+          Vector2 virtualMouse = {(mousePos.x - offset.x) / zoom, (mousePos.y - offset.y) / zoom};
+          Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
+                                  30};
+          if (CheckCollisionPointRec(virtualMouse, backButton)) {
+            menu.currentState = menu.settingsFromPause ? GAME_PAUSED : GAME_MENU;
+          }
+        }
+        break;
 
     case GAME_ENTER_NAME:
        UpdateEnterNameScreen(&menu);
@@ -354,7 +356,6 @@ int main(void) {
     }
 
     // Save score when transitioning to leaderboard from enter name
-    static GameState prevState = GAME_MENU;
     if (menu.currentState == GAME_LEADERBOARD && prevState == GAME_ENTER_NAME) {
       AddScore(&leaderboard, menu.playerName, finalScore);
     }
@@ -408,10 +409,9 @@ int main(void) {
       DrawBullets(bullets);
 
        // Draw UI
-       DrawText(TextFormat("Lives: %d", lives), 10, 10, 20, WHITE);
-       DrawText(TextFormat("Score: %lld", score), 10, 40, 20, WHITE);
-       DrawText(TextFormat("Bullets: %d", bulletCount), 10, 70, 20, WHITE);
-       DrawText(TextFormat("Bullets: %d", bulletCount), 10, 70, 20, WHITE);
+        DrawText(TextFormat("Lives: %d", lives), 10, 10, 20, WHITE);
+        DrawText(TextFormat("Score: %lld", score), 10, 40, 20, WHITE);
+        DrawText(TextFormat("Bullets: %d", bulletCount), 10, 70, 20, WHITE);
 
       // Draw pause button
       Rectangle pauseButton = {SCREEN_WIDTH - 100, 10, 90, 35};

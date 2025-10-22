@@ -39,6 +39,7 @@ typedef struct {
     Difficulty difficulty;
     char playerName[20];
     int nameCharIndex;
+    bool settingsFromPause;
 } MenuData;
 
 // Menu functions
