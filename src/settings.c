@@ -8,8 +8,8 @@
 
 void InitSettings(Settings *settings) {
     settings->soundEnabled = true;
+    settings->musicEnabled = true;
     settings->difficulty = DIFFICULTY_NORMAL;
-    settings->volume = 50;
     LoadSettings(settings);
 }
 
@@ -44,19 +44,17 @@ void DrawSettings(Settings *settings) {
     DrawText(settings->soundEnabled ? "ON" : "OFF", 300, startY, 30, settings->soundEnabled ? GREEN : RED);
     DrawText("Press S to toggle", 450, startY, 20, GRAY);
 
+    // Music toggle
+    DrawText("Music:", 100, startY + lineHeight, 30, WHITE);
+    DrawText(settings->musicEnabled ? "ON" : "OFF", 300, startY + lineHeight, 30, settings->musicEnabled ? GREEN : RED);
+    DrawText("Press M to toggle", 450, startY + lineHeight, 20, GRAY);
+
     // Difficulty
-    DrawText("Difficulty:", 100, startY + lineHeight, 30, WHITE);
+    DrawText("Difficulty:", 100, startY + lineHeight * 2, 30, WHITE);
     const char *diffText[] = {"EASY", "NORMAL", "HARD"};
     Color diffColors[] = {GREEN, YELLOW, RED};
-    DrawText(diffText[settings->difficulty], 300, startY + lineHeight, 30, diffColors[settings->difficulty]);
-    DrawText("Press D to cycle", 450, startY + lineHeight, 20, GRAY);
-
-    // Volume
-    DrawText("Volume:", 100, startY + lineHeight * 2, 30, WHITE);
-    DrawText(TextFormat("%d%%", settings->volume), 300, startY + lineHeight * 2, 30, WHITE);
-    DrawRectangle(450, startY + lineHeight * 2 + 5, 200, 20, DARKGRAY);
-    DrawRectangle(450, startY + lineHeight * 2 + 5, (200 * settings->volume) / 100, 20, GREEN);
-    DrawText("Use LEFT/RIGHT arrows", 450, startY + lineHeight * 2 + 30, 20, GRAY);
+    DrawText(diffText[settings->difficulty], 300, startY + lineHeight * 2, 30, diffColors[settings->difficulty]);
+    DrawText("Press D to cycle", 450, startY + lineHeight * 2, 20, GRAY);
 
     // Back button
     Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100, 30};
@@ -74,20 +72,13 @@ void UpdateSettings(Settings *settings) {
         SaveSettings(settings);
     }
 
+    if (IsKeyPressed(KEY_M)) {
+        settings->musicEnabled = !settings->musicEnabled;
+        SaveSettings(settings);
+    }
+
     if (IsKeyPressed(KEY_D)) {
         settings->difficulty = (settings->difficulty + 1) % 3;
-        SaveSettings(settings);
-    }
-
-    if (IsKeyDown(KEY_LEFT) && settings->volume > 0) {
-        settings->volume -= 5;
-        if (settings->volume < 0) settings->volume = 0;
-        SaveSettings(settings);
-    }
-
-    if (IsKeyDown(KEY_RIGHT) && settings->volume < 100) {
-        settings->volume += 5;
-        if (settings->volume > 100) settings->volume = 100;
         SaveSettings(settings);
     }
 

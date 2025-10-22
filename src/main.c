@@ -10,9 +10,16 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Audio assets
+Sound shootSound;
+Sound explosionSound;
+Music backgroundMusic;
+Music gameOverMusic;
+
 Bullet bullets[MAX_BULLETS];
 int bulletCount = 0; // Current bullet count
 int currentDifficulty = DIFFICULTY_NORMAL; // Current difficulty level
+Settings settings; // Global settings for audio access
 
 int GetBulletLimit() {
   switch (currentDifficulty) {
@@ -39,21 +46,27 @@ void ResetGame(Player *player, Asteroid asteroids[], int *lives,
 int main(void) {
   srand(time(NULL)); // Initialize random seed once
 
-  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Asteroids Clone");
+   InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Geodroid");
   SetTargetFPS(FPS);
 
   // Initialize systems
   MenuData menu;
   InitMenu(&menu);
 
-  Leaderboard leaderboard;
-  InitLeaderboard(&leaderboard);
+   Leaderboard leaderboard;
+   InitLeaderboard(&leaderboard);
 
-   Settings settings;
    InitSettings(&settings);
 
    // Sync menu difficulty with settings
    menu.difficulty = settings.difficulty;
+
+    // Initialize audio
+    InitAudioDevice();
+    shootSound = LoadSound("assets/laser.wav");
+    explosionSound = LoadSound("assets/explosion.wav");
+    backgroundMusic = LoadMusicStream("assets/spaced.wav");
+    gameOverMusic = LoadMusicStream("assets/Icy Game Over.mp3");
 
   // Game objects
   Player player;
@@ -84,8 +97,9 @@ int main(void) {
     // Update based on current state
     switch (menu.currentState) {
     case GAME_MENU:
-      UpdateMenu(&menu);
-      break;
+       UpdateMenu(&menu);
+       UpdateAsteroids(asteroids);
+       break;
 
     case GAME_PLAYING:
       // Update game logic
@@ -97,10 +111,10 @@ int main(void) {
         menu.currentState = GAME_OVER;
       }
 
-      UpdateAsteroids(asteroids);
-      UpdateBullets(bullets);
+       UpdateAsteroids(asteroids);
+       UpdateBullets(bullets);
 
-      // Check collisions
+       // Check collisions
       // Bullet-Asteroid collisions
       for (int i = 0; i < MAX_BULLETS; i++) {
         if (bullets[i].active) {
@@ -109,19 +123,21 @@ int main(void) {
               float dx = bullets[i].position.x - asteroids[j].position.x;
               float dy = bullets[i].position.y - asteroids[j].position.y;
               float distance = sqrtf(dx * dx + dy * dy);
-               if (distance < asteroids[j].radius) {
-                 // Hit!
-                 bullets[i].active = false;
-                 SplitAsteroid(asteroids, j);
-                 score += (asteroids[j].size == ASTEROID_LARGE)    ? 20LL
-                          : (asteroids[j].size == ASTEROID_MEDIUM) ? 50LL
-                                                                   : 100LL;
-                 // Increment bullet count on hit, but don't exceed limit
-                 if (bulletCount < GetBulletLimit()) {
-                   bulletCount++;
-                 }
-                 break;
-               }
+                if (distance < asteroids[j].radius) {
+                  // Hit!
+                  bullets[i].active = false;
+                  SplitAsteroid(asteroids, j);
+                  score += (asteroids[j].size == ASTEROID_LARGE)    ? 20LL
+                           : (asteroids[j].size == ASTEROID_MEDIUM) ? 50LL
+                                                                    : 100LL;
+                  // Increment bullet count on hit, but don't exceed limit
+                  if (bulletCount < GetBulletLimit()) {
+                    bulletCount++;
+                  }
+                   // Play explosion sound
+                   if (settings.soundEnabled) PlaySound(explosionSound);
+                  break;
+                }
             }
           }
         }
@@ -150,13 +166,14 @@ int main(void) {
         invincibilityTimer -= GetFrameTime();
       }
 
-      if (playerHit) {
-        lives--;
-        lives = (lives < 0) ? 0 : lives; // Prevent negative lives
-        if (lives <= 0) {
-          finalScore = score;
-          menu.currentState = GAME_OVER;
-        } else {
+       if (playerHit) {
+         lives--;
+         lives = (lives < 0) ? 0 : lives; // Prevent negative lives
+         if (settings.soundEnabled) PlaySound(explosionSound);
+         if (lives <= 0) {
+           finalScore = score;
+           menu.currentState = GAME_OVER;
+         } else {
           // Reset player position to a safe location
           bool safePosition = false;
           Vector2 newPos;
@@ -258,37 +275,60 @@ int main(void) {
       break;
 
     case GAME_LEADERBOARD:
-      UpdateLeaderboard();
-      // Handle back button click
-      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        Vector2 mousePos = GetMousePosition();
-        Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
-                                30};
-        if (CheckCollisionPointRec(mousePos, backButton)) {
-          menu.currentState = GAME_MENU;
-        }
-      }
-      break;
+       UpdateLeaderboard();
+       UpdateAsteroids(asteroids);
+       // Handle back button click
+       if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+         Vector2 mousePos = GetMousePosition();
+         Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
+                                 30};
+         if (CheckCollisionPointRec(mousePos, backButton)) {
+           menu.currentState = GAME_MENU;
+         }
+       }
+       break;
 
     case GAME_SETTINGS:
-      UpdateSettings(&settings);
-      // Handle back button click
-      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        Vector2 mousePos = GetMousePosition();
-        Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
-                                30};
-        if (CheckCollisionPointRec(mousePos, backButton)) {
-          menu.currentState = GAME_MENU;
-        }
-      }
-      break;
+       UpdateSettings(&settings);
+       UpdateAsteroids(asteroids);
+       // Handle back button click
+       if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+         Vector2 mousePos = GetMousePosition();
+         Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
+                                 30};
+         if (CheckCollisionPointRec(mousePos, backButton)) {
+           menu.currentState = GAME_MENU;
+         }
+       }
+       break;
 
     case GAME_ENTER_NAME:
-      UpdateEnterNameScreen(&menu);
-      break;
-    }
+       UpdateEnterNameScreen(&menu);
+       UpdateAsteroids(asteroids);
+       break;
+     }
 
-    // Handle special transitions
+     // Play music
+     if (menu.currentState == GAME_OVER && settings.musicEnabled) {
+       if (!IsMusicStreamPlaying(gameOverMusic)) {
+         StopMusicStream(backgroundMusic);
+         PlayMusicStream(gameOverMusic);
+       }
+     } else if (settings.musicEnabled) {
+       StopMusicStream(gameOverMusic);
+       if (!IsMusicStreamPlaying(backgroundMusic)) {
+         PlayMusicStream(backgroundMusic);
+       }
+     } else {
+       StopMusicStream(backgroundMusic);
+       StopMusicStream(gameOverMusic);
+     }
+
+     // Update music streams
+     UpdateMusicStream(backgroundMusic);
+     UpdateMusicStream(gameOverMusic);
+
+     // Handle special transitions
     if (menu.currentState == GAME_OVER && IsKeyPressed(KEY_ENTER)) {
       menu.currentState = GAME_ENTER_NAME;
     }
@@ -324,8 +364,9 @@ int main(void) {
 
     switch (menu.currentState) {
     case GAME_MENU:
-      DrawMenu(&menu);
-      break;
+       DrawAsteroids(asteroids);
+       DrawMenu(&menu);
+       break;
 
     case GAME_PLAYING:
       // Draw player with invincibility effect
@@ -372,21 +413,31 @@ int main(void) {
       break;
 
     case GAME_LEADERBOARD:
-      DrawLeaderboard(&leaderboard);
-      break;
+       DrawAsteroids(asteroids);
+       DrawLeaderboard(&leaderboard);
+       break;
 
     case GAME_SETTINGS:
-      DrawSettings(&settings);
-      break;
+       DrawAsteroids(asteroids);
+       DrawSettings(&settings);
+       break;
 
     case GAME_ENTER_NAME:
-      DrawEnterNameScreen(finalScore, &menu);
-      break;
+       DrawAsteroids(asteroids);
+       DrawEnterNameScreen(finalScore, &menu);
+       break;
     }
 
     EndDrawing();
-  }
+   }
 
-  CloseWindow();
-  return 0;
+    // Cleanup audio
+    UnloadSound(shootSound);
+    UnloadSound(explosionSound);
+    UnloadMusicStream(backgroundMusic);
+    UnloadMusicStream(gameOverMusic);
+    CloseAudioDevice();
+
+   CloseWindow();
+   return 0;
 }

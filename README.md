@@ -1,4 +1,4 @@
-# 🚀 Asteroids Clone
+# 🚀 Geodroid
 
 A complete classic Asteroids game built with Raylib in C, featuring smooth vector-based gameplay, collision detection, comprehensive menu system, and persistent leaderboards.
 
@@ -18,6 +18,7 @@ A complete classic Asteroids game built with Raylib in C, featuring smooth vecto
 - **Screen Wrapping**: Seamless edge-to-edge gameplay
 - **Complete Menu System**: Main menu, settings, leaderboard, and pause functionality
 - **Persistent Leaderboards**: Top 10 high scores with names and dates
+- **Audio System**: Retro sound effects for shooting and explosions
 - **Settings Persistence**: Sound, difficulty, and volume settings saved to disk
 - **Pause System**: ESC to pause/resume during gameplay
 - **Name Entry**: Enter your name for high score records
@@ -43,6 +44,22 @@ A complete classic Asteroids game built with Raylib in C, featuring smooth vecto
 - **S**: Toggle sound on/off
 - **D**: Cycle difficulty (Easy/Normal/Hard)
 - **LEFT/RIGHT Arrows**: Adjust volume
+
+## 🎵 Audio Assets
+
+The game includes retro sound effects for an authentic arcade experience:
+
+- **Laser Sound**: Classic pew-pew shooting effect
+- **Explosion Sound**: Satisfying asteroid destruction audio
+- **Audio Toggle**: Enable/disable sounds in settings menu
+- **Volume Control**: Adjustable master volume
+
+**Asset Credits:**
+- Sound Effects and Music: [OpenGameArt.org](https://opengameart.org/)
+  - explosion.wav
+  - laser.wav
+  - spaced.wav
+  - Icy Game Over.mp3
 
 ## 🎯 Difficulty System
 
@@ -89,7 +106,7 @@ This system adds strategic depth - you must aim carefully and manage your limite
 
 ```bash
 # Clone or navigate to project directory
-cd Asteroids-Clone
+cd Geodroid
 
 # Create build directory
 mkdir build && cd build
@@ -101,18 +118,18 @@ cmake -S .. -B .
 cmake --build .
 
 # Run the game
-./Asteroids-Clone
+./Geodroid
 ```
 
 ### Alternative Quick Build
 ```bash
-cmake -B build -S . && cmake --build build && ./build/Asteroids-Clone
+cmake -B build -S . && cmake --build build && ./build/Geodroid
 ```
 
 ## 📁 Project Structure
 
 ```
-Asteroids-Clone/
+Geodroid/
 ├── src/
 │   ├── main.c          # Game loop and state management
 │   ├── player.c/.h     # Player ship mechanics
@@ -125,7 +142,11 @@ Asteroids-Clone/
 ├── data/               # Save files directory
 │   ├── scores.dat      # High scores data
 │   └── settings.dat    # User settings
-├── assets/             # Sound effects and graphics (future)
+├── assets/             # Sound effects and graphics
+│   ├── laser.wav       # Shooting sound effect
+│   ├── explosion.wav   # Asteroid destruction sound
+│   ├── *.png           # Asteroid sprites
+│   └── license.txt     # Asset licensing information
 ├── CMakeLists.txt      # Build configuration
 └── README.md          # This file
 ```
@@ -224,10 +245,12 @@ Asteroids-Clone/
 
 - Built with [Raylib](https://www.raylib.com/) - A simple and easy-to-use library to enjoy videogames programming
 - Inspired by the classic Atari Asteroids game
+- **Assets**: Sound effects and music from [OpenGameArt.org](https://opengameart.org/)
 - Thanks to the Raylib community for excellent documentation and examples
+- Special thanks to the open-source community for providing free game assets
 
 ---
 
-**Enjoy the complete Asteroids experience!** 🎮🚀
+**Enjoy the complete Geodroid experience!** 🎮🚀
 
 _This game includes a full menu system, persistent leaderboards, and professional polish - everything you'd expect from a commercial game release._

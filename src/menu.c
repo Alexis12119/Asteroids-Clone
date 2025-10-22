@@ -4,7 +4,7 @@
 #include <string.h>
 #include <math.h>
 
-#define MENU_TITLE "ASTEROIDS"
+#define MENU_TITLE "GEODROID"
 #define MENU_TITLE_SIZE 60
 #define MENU_ITEM_SIZE 30
 #define MENU_ITEM_SPACING 50

@@ -11,8 +11,8 @@ typedef enum {
 
 typedef struct {
     bool soundEnabled;
+    bool musicEnabled;
     Difficulty difficulty;
-    int volume; // 0-100
 } Settings;
 
 // Settings functions

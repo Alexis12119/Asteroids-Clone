@@ -2,10 +2,13 @@
 #include "raylib.h"
 #include "bullet.h"
 #include "constants.h"
+#include "settings.h"
 #include <math.h>
 
 extern Bullet bullets[MAX_BULLETS];
 extern int bulletCount;
+extern Sound shootSound;
+extern Settings settings;
 
 void InitPlayer(Player *player) {
     player->position = (Vector2){SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f};
@@ -49,7 +52,9 @@ void UpdatePlayer(Player *player) {
 
     // Shooting
     if (IsKeyPressed(KEY_SPACE)) {
-        FireBullet(bullets, player->position, player->rotation, &bulletCount);
+        if (FireBullet(bullets, player->position, player->rotation, &bulletCount)) {
+            if (settings.soundEnabled) PlaySound(shootSound);
+        }
     }
 }
 
