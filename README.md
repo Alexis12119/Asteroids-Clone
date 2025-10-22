@@ -2,6 +2,13 @@
 
 A complete classic Asteroids game built with Raylib in C, featuring smooth vector-based gameplay, collision detection, comprehensive menu system, and persistent leaderboards.
 
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/10cd2b7a-02e5-43fd-9223-95fea397ce03" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/f28b4d7e-5cd8-4f11-aee5-3023d72cd184" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/86c04f51-e10a-450d-85c6-3804f9301ea1" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/80b7b250-6580-46f7-9d95-8e0a34fd0032" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/1c65e22f-205f-4cba-9720-251e23be3030" />
+
+
 ## 🎮 Features
 
 - **Classic Gameplay**: Rotate, thrust, and shoot to destroy asteroids
