@@ -19,9 +19,11 @@ Music gameOverMusic;
 Bullet bullets[MAX_BULLETS];
 int bulletCount = 0; // Current bullet count
 int currentDifficulty = DIFFICULTY_NORMAL; // Current difficulty level
-Settings settings; // Global settings for audio access
+   Settings settings; // Global settings for audio access
 
-int GetBulletLimit() {
+   Camera2D camera = {0}; // Camera for responsive scaling
+
+   int GetBulletLimit() {
   switch (currentDifficulty) {
     case DIFFICULTY_EASY: return BULLET_LIMIT_EASY;
     case DIFFICULTY_NORMAL: return BULLET_LIMIT_NORMAL;
@@ -47,7 +49,8 @@ int main(void) {
   srand(time(NULL)); // Initialize random seed once
 
    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Geodroid");
-  SetTargetFPS(FPS);
+   SetWindowState(FLAG_WINDOW_RESIZABLE);
+   SetTargetFPS(FPS);
 
   // Initialize systems
   MenuData menu;
@@ -83,16 +86,25 @@ int main(void) {
   InitAsteroids(asteroids);
   InitBullets(bullets);
 
-  while (!WindowShouldClose()) {
-    // Handle menu navigation
-    if (menu.currentState == GAME_PLAYING &&
-        IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      Vector2 mousePos = GetMousePosition();
-      Rectangle pauseButton = {SCREEN_WIDTH - 100, 10, 90, 35};
-      if (CheckCollisionPointRec(mousePos, pauseButton)) {
-        menu.currentState = GAME_PAUSED;
-      }
-    }
+   while (!WindowShouldClose()) {
+     // Handle fullscreen toggle
+     if (IsKeyPressed(KEY_F11)) {
+       ToggleFullscreen();
+     }
+
+     // Handle menu navigation
+     if (menu.currentState == GAME_PLAYING &&
+         IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+       Vector2 mousePos = GetMousePosition();
+       // Convert to virtual coordinates for scaled UI
+       float zoom = fminf((float)GetScreenWidth() / SCREEN_WIDTH, (float)GetScreenHeight() / SCREEN_HEIGHT);
+       Vector2 offset = {(GetScreenWidth() - SCREEN_WIDTH * zoom) / 2.0f, (GetScreenHeight() - SCREEN_HEIGHT * zoom) / 2.0f};
+       Vector2 virtualMouse = {(mousePos.x - offset.x) / zoom, (mousePos.y - offset.y) / zoom};
+       Rectangle pauseButton = {SCREEN_WIDTH - 100, 10, 90, 35};
+       if (CheckCollisionPointRec(virtualMouse, pauseButton)) {
+         menu.currentState = GAME_PAUSED;
+       }
+     }
 
     // Update based on current state
     switch (menu.currentState) {
@@ -274,29 +286,37 @@ int main(void) {
       UpdateGameOverScreen(&menu);
       break;
 
-    case GAME_LEADERBOARD:
+     case GAME_LEADERBOARD:
        UpdateLeaderboard();
        UpdateAsteroids(asteroids);
        // Handle back button click
        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
          Vector2 mousePos = GetMousePosition();
+         // Convert to virtual coordinates for scaled UI
+         float zoom = fminf((float)GetScreenWidth() / SCREEN_WIDTH, (float)GetScreenHeight() / SCREEN_HEIGHT);
+         Vector2 offset = {(GetScreenWidth() - SCREEN_WIDTH * zoom) / 2.0f, (GetScreenHeight() - SCREEN_HEIGHT * zoom) / 2.0f};
+         Vector2 virtualMouse = {(mousePos.x - offset.x) / zoom, (mousePos.y - offset.y) / zoom};
          Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
                                  30};
-         if (CheckCollisionPointRec(mousePos, backButton)) {
+         if (CheckCollisionPointRec(virtualMouse, backButton)) {
            menu.currentState = GAME_MENU;
          }
        }
        break;
 
-    case GAME_SETTINGS:
+     case GAME_SETTINGS:
        UpdateSettings(&settings);
        UpdateAsteroids(asteroids);
        // Handle back button click
        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
          Vector2 mousePos = GetMousePosition();
+         // Convert to virtual coordinates for scaled UI
+         float zoom = fminf((float)GetScreenWidth() / SCREEN_WIDTH, (float)GetScreenHeight() / SCREEN_HEIGHT);
+         Vector2 offset = {(GetScreenWidth() - SCREEN_WIDTH * zoom) / 2.0f, (GetScreenHeight() - SCREEN_HEIGHT * zoom) / 2.0f};
+         Vector2 virtualMouse = {(mousePos.x - offset.x) / zoom, (mousePos.y - offset.y) / zoom};
          Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100,
                                  30};
-         if (CheckCollisionPointRec(mousePos, backButton)) {
+         if (CheckCollisionPointRec(virtualMouse, backButton)) {
            menu.currentState = GAME_MENU;
          }
        }
@@ -358,9 +378,15 @@ int main(void) {
       break; // Exit game
     }
 
-    // Draw
-    BeginDrawing();
-    ClearBackground(BLACK);
+     // Set up camera for responsive scaling
+     camera.zoom = fminf((float)GetScreenWidth() / SCREEN_WIDTH, (float)GetScreenHeight() / SCREEN_HEIGHT);
+     camera.offset.x = (GetScreenWidth() - SCREEN_WIDTH * camera.zoom) / 2.0f;
+     camera.offset.y = (GetScreenHeight() - SCREEN_HEIGHT * camera.zoom) / 2.0f;
+
+     // Draw
+     BeginDrawing();
+     ClearBackground(BLACK);
+     BeginMode2D(camera);
 
     switch (menu.currentState) {
     case GAME_MENU:
@@ -426,10 +452,11 @@ int main(void) {
        DrawAsteroids(asteroids);
        DrawEnterNameScreen(finalScore, &menu);
        break;
-    }
+     }
 
-    EndDrawing();
-   }
+     EndMode2D();
+     EndDrawing();
+    }
 
     // Cleanup audio
     UnloadSound(shootSound);

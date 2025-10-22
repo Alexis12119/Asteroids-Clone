@@ -146,11 +146,15 @@ void UpdatePauseMenu(MenuData *menu) {
 
     // Handle back button click
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        Vector2 mousePos = GetMousePosition();
-        Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100, 30};
-        if (CheckCollisionPointRec(mousePos, backButton)) {
-            menu->currentState = GAME_MENU;
-        }
+      Vector2 mousePos = GetMousePosition();
+      // Convert to virtual coordinates for scaled UI
+      float zoom = fminf((float)GetScreenWidth() / SCREEN_WIDTH, (float)GetScreenHeight() / SCREEN_HEIGHT);
+      Vector2 offset = {(GetScreenWidth() - SCREEN_WIDTH * zoom) / 2.0f, (GetScreenHeight() - SCREEN_HEIGHT * zoom) / 2.0f};
+      Vector2 virtualMouse = {(mousePos.x - offset.x) / zoom, (mousePos.y - offset.y) / zoom};
+      Rectangle backButton = {SCREEN_WIDTH - 120, SCREEN_HEIGHT - 50, 100, 30};
+      if (CheckCollisionPointRec(virtualMouse, backButton)) {
+        menu->currentState = GAME_MENU;
+      }
     }
 }
 
