@@ -89,7 +89,7 @@ This system adds strategic depth - you must aim carefully and manage your limite
 
 ```bash
 # Clone or navigate to project directory
-cd asteroids
+cd Asteroids-Clone
 
 # Create build directory
 mkdir build && cd build
@@ -101,19 +101,18 @@ cmake -S .. -B .
 cmake --build .
 
 # Run the game
-./raylib-asteroids
+./Asteroids-Clone
 ```
 
 ### Alternative Quick Build
-
 ```bash
-cmake -B build -S . && cmake --build build && ./build/raylib-asteroids
+cmake -B build -S . && cmake --build build && ./build/Asteroids-Clone
 ```
 
 ## 📁 Project Structure
 
 ```
-asteroids/
+Asteroids-Clone/
 ├── src/
 │   ├── main.c          # Game loop and state management
 │   ├── player.c/.h     # Player ship mechanics

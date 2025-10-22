@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
-project(raylib-asteroids C)
+project(Asteroids-Clone)
 
 set(CMAKE_C_STANDARD 99)
+
+# Include directories
+include_directories(src)
 
 # Find Raylib
 find_package(raylib REQUIRED)
